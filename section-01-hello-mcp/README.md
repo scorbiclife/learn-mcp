@@ -1,0 +1,189 @@
+# Section 1: Hello MCP - Your First Server
+
+Welcome to your first MCP server! In this section, you'll build and test a simple echo server.
+
+## Learning Objectives
+
+By completing this exercise, you will be able to:
+- Create a basic MCP server that exposes a tool
+- Handle tool listing and execution requests
+- Test your MCP server using the Inspector
+
+## Exercise: Build an Echo Tool
+
+**Problem:** You want to create an MCP server with a tool that AI assistants can use to echo messages back.
+
+### Part 1: Setup and Run the Starter Code
+
+**Step 1:** Install the dependencies
+```bash
+pnpm install
+```
+
+**Step 2:** Build the TypeScript code
+```bash
+pnpm run build
+```
+
+**Step 3:** Test the server using the MCP Inspector
+```bash
+pnpm dlx @modelcontextprotocol/inspector node build/index.js
+```
+
+A browser window will open. In the Inspector:
+- Click on "Tools" in the left sidebar
+- You should see the "echo" tool listed
+- Click the "Test" button
+- Enter a message like "Hello MCP!"
+- Click "Run" and observe the response
+
+**What you should see:** The server returns `Echo: Hello MCP!`
+
+### Part 2: Modify the Echo Format
+
+**Problem:** The current format `Echo: <message>` is boring. Change it to `You said: <message>`.
+
+**Step 4:** Open [src/index.ts](src/index.ts) and find the CallTool handler (around line 64)
+
+**Step 5:** Find this line:
+```typescript
+text: `Echo: ${message}`,
+```
+
+**Step 6:** Change it to:
+```typescript
+text: `You said: ${message}`,
+```
+
+**Step 7:** Rebuild and test:
+```bash
+npm run build
+npx @modelcontextprotocol/inspector node build/index.js
+```
+
+**Step 8:** Test the tool again with "Hello MCP!" and verify it now returns `You said: Hello MCP!`
+
+### Part 3: Add Message Length Validation
+
+**Problem:** Users might send extremely long messages. Add validation to reject messages longer than 100 characters.
+
+**Step 9:** In the CallTool handler, after checking if message exists, add a length check:
+```typescript
+if (message.length > 100) {
+  throw new Error("Message must be 100 characters or less");
+}
+```
+
+**Step 10:** Rebuild and test with a message longer than 100 characters. You should see an error message.
+
+### Part 4: Add an Uppercase Option
+
+**Problem:** Sometimes users want their echo to be in uppercase. Add an optional `uppercase` parameter.
+
+**Step 11:** Update the tool's `inputSchema` in the ListTools handler (around line 54) to include a new property:
+```typescript
+inputSchema: {
+  type: "object",
+  properties: {
+    message: {
+      type: "string",
+      description: "The message to echo back",
+    },
+    uppercase: {
+      type: "boolean",
+      description: "Convert the message to uppercase",
+    },
+  },
+  required: ["message"],
+},
+```
+
+**Step 12:** Update the CallTool handler to use the uppercase parameter:
+```typescript
+if (name === "echo") {
+  const message = args?.message as string;
+  const uppercase = args?.uppercase as boolean;
+
+  if (!message) {
+    throw new Error("Message parameter is required");
+  }
+
+  if (message.length > 100) {
+    throw new Error("Message must be 100 characters or less");
+  }
+
+  const responseText = uppercase ? message.toUpperCase() : message;
+
+  return {
+    content: [
+      {
+        type: "text",
+        text: `You said: ${responseText}`,
+      },
+    ],
+  };
+}
+```
+
+**Step 13:** Rebuild and test:
+```bash
+npm run build
+npx @modelcontextprotocol/inspector node build/index.js
+```
+
+**Step 14:** Test the tool with:
+- Message: "Hello MCP!" and uppercase: false → Should return "You said: Hello MCP!"
+- Message: "Hello MCP!" and uppercase: true → Should return "You said: HELLO MCP!"
+
+## Review Questions
+
+Answer these questions based on the code you just wrote:
+
+1. **In Part 2, you changed the echo format. What property of the return object did you modify?**
+   <details>
+   <summary>Answer</summary>
+   The `text` property inside the `content` array.
+   </details>
+
+2. **In Part 3, what happens when a user sends a message with 101 characters?**
+   <details>
+   <summary>Answer</summary>
+   The code throws an Error with the message "Message must be 100 characters or less", which the MCP client will receive as an error response.
+   </details>
+
+3. **In Part 4, you added an `uppercase` parameter. Why didn't you add it to the `required` array in the inputSchema?**
+   <details>
+   <summary>Answer</summary>
+   Because `uppercase` is optional - the tool should work whether or not the user provides this parameter. Only `message` is required.
+   </details>
+
+4. **Look at your CallTool handler code. What line of code actually converts the message to uppercase?**
+   <details>
+   <summary>Answer</summary>
+   `const responseText = uppercase ? message.toUpperCase() : message;` - this uses a ternary operator to conditionally call `.toUpperCase()` based on the uppercase parameter.
+   </details>
+
+5. **After modifying the TypeScript code, what command must you always run before testing?**
+   <details>
+   <summary>Answer</summary>
+   `npm run build` - this compiles your TypeScript code to JavaScript that Node.js can execute.
+   </details>
+
+## Troubleshooting
+
+**"Module not found" errors**: Run `npm install` first
+
+**"Command not found: node"**: Make sure Node.js is installed
+
+**Changes not working**: Remember to run `npm run build` after editing TypeScript files
+
+**Inspector shows old behavior**: Make sure you stopped the previous Inspector session and restarted it after rebuilding
+
+## What's Next?
+
+Once you've completed this exercise, you're ready to explore more MCP concepts. Future sections will cover:
+- Resources (exposing data to AI models)
+- Prompts (reusable prompt templates)
+- Multiple tools in one server
+- Error handling patterns
+- Real-world use cases
