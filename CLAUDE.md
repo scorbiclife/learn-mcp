@@ -29,10 +29,12 @@ Optionally edit the curriculum as we progress through the course.
 
 - Ideally each step should have automated tests to check whether it is solved properly. Something like a TDD-based approach.
     - Why: In order to provide the user a fast feedback loop.
+<!-- -->
 
 - Review questions should contain what the user actively coded.
     - If you want to ask something in a review,
       you should include the material in the main exercise.
+<!-- -->
 
 - I'm using `pnpm` so use that instead of `npm` for the setup instructions.
 
