@@ -1,0 +1,22 @@
+{
+  "name": "lesson-01-hello-mcp",
+  "version": "1.0.0",
+  "description": "Lesson 1: Your first MCP server with a simple echo tool",
+  "type": "module",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "watch": "tsc --watch"
+  },
+  "keywords": ["mcp", "server", "tutorial"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.2"
+  }
+}
