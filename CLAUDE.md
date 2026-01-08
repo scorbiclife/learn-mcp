@@ -25,8 +25,12 @@ Optionally edit the curriculum as we progress through the course.
 
 ## Task-specific Feedback
 
-### Lesson Creation
+### Section Creation
 
 - Review questions should contain what the user actively coded.
     - If you want to ask something in a review,
       you should include the material in the main exercise.
+
+- I'm using `pnpm` so use that instead of `npm` for the setup instructions.
+
+- Add `.gitignore` files.
