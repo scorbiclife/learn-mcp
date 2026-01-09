@@ -45,7 +45,7 @@ A browser window will open. In the Inspector:
 
 **Problem:** The current format `Echo: <message>` is boring. Change it to `You said: <message>`.
 
-**Step 4:** Open [src/index.ts](src/index.ts) and find the CallTool handler (around line 64)
+**Step 4:** Open [src/index.ts](src/index.ts) and find the `registerTool` handler (around line 44)
 
 **Step 5:** Find this line:
 ```typescript
@@ -76,10 +76,16 @@ Test the tool again with "Hello MCP!" and verify it now returns `You said: Hello
 
 **Problem:** Users might send extremely long messages. Add validation to reject messages longer than 100 characters.
 
-**Step 9:** In the CallTool handler, after checking if message exists, add a length check:
+**Step 9:** In the handler function, add a length check before returning:
 ```typescript
-if (message.length > 100) {
-  throw new Error("Message must be 100 characters or less");
+async ({ message }: { message: string }) => {
+  if (message.length > 100) {
+    throw new Error("Message must be 100 characters or less");
+  }
+
+  return {
+    // ... rest of your code
+  };
 }
 ```
 
@@ -97,34 +103,17 @@ The tests will verify that:
 
 **Problem:** Sometimes users want their echo to be in uppercase. Add an optional `uppercase` parameter.
 
-**Step 11:** Update the tool's `inputSchema` in the ListTools handler (around line 54) to include a new property:
+**Step 11:** Update the `inputSchema` to include a new optional `uppercase` property:
 ```typescript
 inputSchema: {
-  type: "object",
-  properties: {
-    message: {
-      type: "string",
-      description: "The message to echo back",
-    },
-    uppercase: {
-      type: "boolean",
-      description: "Convert the message to uppercase",
-    },
-  },
-  required: ["message"],
+  message: z.string().describe("The message to echo back"),
+  uppercase: z.boolean().optional().describe("Convert the message to uppercase"),
 },
 ```
 
-**Step 12:** Update the CallTool handler to use the uppercase parameter:
+**Step 12:** Update the handler to use the uppercase parameter:
 ```typescript
-if (name === "echo") {
-  const message = args?.message as string;
-  const uppercase = args?.uppercase as boolean;
-
-  if (!message) {
-    throw new Error("Message parameter is required");
-  }
-
+async ({ message, uppercase }: { message: string; uppercase?: boolean }) => {
   if (message.length > 100) {
     throw new Error("Message must be 100 characters or less");
   }
@@ -182,13 +171,13 @@ Answer these questions based on the code you just wrote:
    The code throws an Error with the message "Message must be 100 characters or less", which the MCP client will receive as an error response.
    </details>
 
-3. **In Part 4, you added an `uppercase` parameter. Why didn't you add it to the `required` array in the inputSchema?**
+3. **In Part 4, you added an `uppercase` parameter. What Zod method did you use to make it optional?**
    <details>
    <summary>Answer</summary>
-   Because `uppercase` is optional - the tool should work whether or not the user provides this parameter. Only `message` is required.
+   `.optional()` - this makes the field not required, so the tool works whether or not the user provides this parameter.
    </details>
 
-4. **Look at your CallTool handler code. What line of code actually converts the message to uppercase?**
+4. **Look at your handler code. What line of code actually converts the message to uppercase?**
    <details>
    <summary>Answer</summary>
    `const responseText = uppercase ? message.toUpperCase() : message;` - this uses a ternary operator to conditionally call `.toUpperCase()` based on the uppercase parameter.

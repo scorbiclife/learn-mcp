@@ -1,81 +1,48 @@
 #!/usr/bin/env node
 
 /**
- * Lesson 1: Hello MCP Server
+ * Section 1: Hello MCP Server
  *
  * This is your first MCP server! It demonstrates the basic structure
  * of an MCP server and exposes a simple "echo" tool.
  *
  * Key concepts:
- * - Server initialization
- * - Tool registration
- * - Request handling
+ * - Server initialization with McpServer
+ * - Tool registration with registerTool()
+ * - Input validation with Zod schemas
  * - stdio transport
  */
 
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
+import { z } from "zod";
 
 /**
  * Step 1: Create the MCP Server
- * The Server class is the core of any MCP server.
+ * The McpServer class is the core of any MCP server.
  */
-const server = new Server(
-  {
-    name: "lesson-01-hello-mcp",
-    version: "1.0.0",
-  },
-  {
-    capabilities: {
-      tools: {}, // This server provides tools
-    },
-  }
-);
-
-/**
- * Step 2: Register Tool Handlers
- * MCP uses a request/response pattern. We need to handle two types of requests:
- * 1. ListTools - tells the client what tools are available
- * 2. CallTool - executes a specific tool
- */
-
-// Handler for listing available tools
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
-      {
-        name: "echo",
-        description: "Echoes back the message you send. A simple tool to test MCP communication.",
-        inputSchema: {
-          type: "object",
-          properties: {
-            message: {
-              type: "string",
-              description: "The message to echo back",
-            },
-          },
-          required: ["message"],
-        },
-      },
-    ],
-  };
+const server = new McpServer({
+  name: "section-01-hello-mcp",
+  version: "1.0.0",
 });
 
-// Handler for executing tools
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
-
-  if (name === "echo") {
-    const message = args?.message as string;
-
-    if (!message) {
-      throw new Error("Message parameter is required");
-    }
-
+/**
+ * Step 2: Register the echo tool
+ * server.registerTool() takes three arguments:
+ * 1. Tool name
+ * 2. Configuration object (description, input schema)
+ * 3. Handler function that receives validated arguments
+ */
+server.registerTool(
+  "echo",
+  {
+    description:
+      "Echoes back the message you send. A simple tool to test MCP communication.",
+    inputSchema: {
+      message: z.string().describe("The message to echo back"),
+    },
+  },
+  async ({ message }: { message: string }) => {
     return {
       content: [
         {
@@ -85,9 +52,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ],
     };
   }
-
-  throw new Error(`Unknown tool: ${name}`);
-});
+);
 
 /**
  * Step 3: Start the Server
