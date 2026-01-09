@@ -1,13 +1,14 @@
 {
-  "name": "lesson-01-hello-mcp",
+  "name": "section-01-hello-mcp",
   "version": "1.0.0",
-  "description": "Lesson 1: Your first MCP server with a simple echo tool",
+  "description": "Section 1: Your first MCP server with a simple echo tool",
   "type": "module",
   "main": "build/index.js",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
-    "watch": "tsc --watch"
+    "prepare": "pnpm run build",
+    "watch": "tsc --watch",
+    "test": "node test/verify.js"
   },
   "keywords": ["mcp", "server", "tutorial"],
   "author": "",

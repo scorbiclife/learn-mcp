@@ -13,6 +13,8 @@ By completing this exercise, you will be able to:
 
 **Problem:** You want to create an MCP server with a tool that AI assistants can use to echo messages back.
 
+This exercise uses **automated tests** to give you fast feedback. After each part, you'll run `pnpm test` to verify your implementation is correct. This test-driven approach helps you learn faster!
+
 ### Part 1: Setup and Run the Starter Code
 
 **Step 1:** Install the dependencies
@@ -55,13 +57,20 @@ text: `Echo: ${message}`,
 text: `You said: ${message}`,
 ```
 
-**Step 7:** Rebuild and test:
+**Step 7:** Rebuild and run the automated tests:
 ```bash
-npm run build
-npx @modelcontextprotocol/inspector node build/index.js
+pnpm run build
+pnpm test
 ```
 
-**Step 8:** Test the tool again with "Hello MCP!" and verify it now returns `You said: Hello MCP!`
+You should see a passing test for Part 2. The test verifies that your echo format is correct.
+
+**Step 8 (Optional):** Manually test in the Inspector:
+```bash
+pnpm dlx @modelcontextprotocol/inspector node build/index.js
+```
+
+Test the tool again with "Hello MCP!" and verify it now returns `You said: Hello MCP!`
 
 ### Part 3: Add Message Length Validation
 
@@ -74,7 +83,15 @@ if (message.length > 100) {
 }
 ```
 
-**Step 10:** Rebuild and test with a message longer than 100 characters. You should see an error message.
+**Step 10:** Rebuild and run the tests:
+```bash
+pnpm run build
+pnpm test
+```
+
+The tests will verify that:
+- Messages with 101+ characters are rejected
+- Messages with exactly 100 characters are accepted
 
 ### Part 4: Add an Uppercase Option
 
@@ -125,15 +142,29 @@ if (name === "echo") {
 }
 ```
 
-**Step 13:** Rebuild and test:
+**Step 13:** Rebuild and run all tests:
 ```bash
-npm run build
-npx @modelcontextprotocol/inspector node build/index.js
+pnpm run build
+pnpm test
 ```
 
-**Step 14:** Test the tool with:
-- Message: "Hello MCP!" and uppercase: false → Should return "You said: Hello MCP!"
-- Message: "Hello MCP!" and uppercase: true → Should return "You said: HELLO MCP!"
+If all tests pass, you'll see:
+```
+✓ Part 1: Server starts and responds to ListTools
+✓ Part 2: Echo format changed to "You said: "
+✓ Part 3: Message length validation (rejects >100 chars)
+✓ Part 3: Message length validation (accepts ≤100 chars)
+✓ Part 4: Uppercase parameter (false)
+✓ Part 4: Uppercase parameter (true)
+✓ Part 4: Uppercase parameter (optional)
+
+🎉 All tests passed! You completed Section 1!
+```
+
+The tests verify that:
+- `uppercase: false` keeps the original case
+- `uppercase: true` converts to uppercase
+- The parameter is optional (works when omitted)
 
 ## Review Questions
 
@@ -166,16 +197,18 @@ Answer these questions based on the code you just wrote:
 5. **After modifying the TypeScript code, what command must you always run before testing?**
    <details>
    <summary>Answer</summary>
-   `npm run build` - this compiles your TypeScript code to JavaScript that Node.js can execute.
+   `pnpm run build` - this compiles your TypeScript code to JavaScript that Node.js can execute.
    </details>
 
 ## Troubleshooting
 
-**"Module not found" errors**: Run `npm install` first
+**"Module not found" errors**: Run `pnpm install` first
 
 **"Command not found: node"**: Make sure Node.js is installed
 
-**Changes not working**: Remember to run `npm run build` after editing TypeScript files
+**Changes not working**: Remember to run `pnpm run build` after editing TypeScript files
+
+**Tests failing**: The error message will tell you what's wrong. Read it carefully and check your code
 
 **Inspector shows old behavior**: Make sure you stopped the previous Inspector session and restarted it after rebuilding
 
